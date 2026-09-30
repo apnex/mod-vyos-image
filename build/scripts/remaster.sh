@@ -63,7 +63,7 @@ chroot "${ROOT}" apt-get install -y --no-install-recommends cloud-init
 
 ## GCE datasource, as the retired upstream tools/cloud-init/GCE/90_dpkg.cfg did
 ## metadata_url uses the link-local IP: the ephemeral DHCP lease in init-local
-## configures no resolver, so metadata.google.internal is not resolvable (spike S3)
+## configures no resolver, so metadata.google.internal is not resolvable
 cat > "${ROOT}/etc/cloud/cloud.cfg.d/90_dpkg.cfg" <<-EOF
 	# written by ${REMASTER_TAG}
 	datasource_list: [ GCE, None ]

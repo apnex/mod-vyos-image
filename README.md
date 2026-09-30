@@ -6,7 +6,7 @@ Builds a VyOS GCE image from the latest VyOS rolling nightly using Google Cloud 
 ```
 locals {
 	project_id	= "my-project"
-	region		= "australia-southeast1"
+	region		= "us-central1"
 }
 
 module "vyos_image" {

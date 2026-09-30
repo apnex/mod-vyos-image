@@ -1,0 +1,46 @@
+substitutions:
+  _BUCKET: ""
+  _PREFIX: "vyos/"
+  _BUILD_TOKEN: ""
+  _RELEASE: "latest"
+  _DISK_SIZE: "10"
+  _SSH_PASSWORD_AUTH: "false"
+  _VYOS_BUILD_REF: "rolling"
+  _VYOS_BUILD_IMAGE: "vyos/vyos-build@sha256:482461a415e2fa05b5b1753bfa5490f6fd349585b88be6c23314867b770bb1a0"
+
+steps:
+  - id: clone
+    name: gcr.io/cloud-builders/git
+    entrypoint: bash
+    args: ["-c", "git clone -q --depth 1 -b ${_VYOS_BUILD_REF} https://github.com/vyos/vyos-build /workspace/vyos-build && git -C /workspace/vyos-build rev-parse HEAD | tee /workspace/vyos-build.sha"]
+
+  - id: ingest
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args: ["/workspace/scripts/ingest.sh"]
+    env: ["RELEASE=${_RELEASE}", "BUCKET=${_BUCKET}", "PREFIX=${_PREFIX}", "WORKDIR=/workspace"]
+
+  - id: remaster
+    name: gcr.io/cloud-builders/docker
+    args: ["run", "--rm", "--privileged", "-v=/dev:/dev", "-v=/workspace:/work",
+           "-e=WORKDIR=/work", "-e=SSH_PASSWORD_AUTH=${_SSH_PASSWORD_AUTH}",
+           "--entrypoint=/bin/bash", "${_VYOS_BUILD_IMAGE}", "/work/scripts/remaster.sh"]
+
+  - id: raw
+    name: gcr.io/cloud-builders/docker
+    args: ["run", "--rm", "--privileged", "--sysctl=net.ipv6.conf.lo.disable_ipv6=0", "-v=/dev:/dev", "-v=/workspace:/work",
+           "-e=WORKDIR=/work", "-e=DISK_SIZE=${_DISK_SIZE}",
+           "--entrypoint=/bin/bash", "${_VYOS_BUILD_IMAGE}", "/work/scripts/raw.sh"]
+
+  - id: package
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args: ["/workspace/scripts/package.sh"]
+    env: ["BUCKET=${_BUCKET}", "PREFIX=${_PREFIX}", "BUILD_TOKEN=${_BUILD_TOKEN}", "WORKDIR=/workspace",
+          "BUILD_ID=$BUILD_ID", "VYOS_BUILD_IMAGE=${_VYOS_BUILD_IMAGE}", "SSH_PASSWORD_AUTH=${_SSH_PASSWORD_AUTH}"]
+
+timeout: 7200s
+options:
+  machineType: E2_HIGHCPU_8
+  diskSizeGb: 200
+  logging: CLOUD_LOGGING_ONLY

@@ -1,0 +1,2 @@
+# GCE raw disk flavor - built from a remastered ISO via --reuse-iso
+image_format = ["raw"]

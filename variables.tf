@@ -96,6 +96,12 @@ variable "ssh_password_authentication" {
   default     = false
 }
 
+variable "google_guest_agent" {
+  description = "Install the Google guest agent (from Google's apt repository), configured for a router: forwarded IPs such as load balancer addresses are handled; users and SSH keys, interfaces, hostname, SSH host keys, alias IP ranges and time stay with VyOS."
+  type        = bool
+  default     = true
+}
+
 variable "disk_size_gb" {
   description = "Size of the image disk in GB."
   type        = number

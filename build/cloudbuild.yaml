@@ -5,6 +5,7 @@ substitutions:
   _RELEASE: "latest"
   _DISK_SIZE: "10"
   _SSH_PASSWORD_AUTH: "false"
+  _GOOGLE_GUEST_AGENT: "true"
   _VYOS_BUILD_REF: "rolling"
   _VYOS_BUILD_IMAGE: "vyos/vyos-build@sha256:482461a415e2fa05b5b1753bfa5490f6fd349585b88be6c23314867b770bb1a0"
 
@@ -23,7 +24,7 @@ steps:
   - id: remaster
     name: gcr.io/cloud-builders/docker
     args: ["run", "--rm", "--privileged", "-v=/dev:/dev", "-v=/workspace:/work",
-           "-e=WORKDIR=/work", "-e=SSH_PASSWORD_AUTH=${_SSH_PASSWORD_AUTH}",
+           "-e=WORKDIR=/work", "-e=SSH_PASSWORD_AUTH=${_SSH_PASSWORD_AUTH}", "-e=GOOGLE_GUEST_AGENT=${_GOOGLE_GUEST_AGENT}",
            "--entrypoint=/bin/bash", "${_VYOS_BUILD_IMAGE}", "/work/scripts/remaster.sh"]
 
   - id: raw
@@ -37,7 +38,8 @@ steps:
     entrypoint: bash
     args: ["/workspace/scripts/package.sh"]
     env: ["BUCKET=${_BUCKET}", "PREFIX=${_PREFIX}", "BUILD_TOKEN=${_BUILD_TOKEN}", "WORKDIR=/workspace",
-          "BUILD_ID=$BUILD_ID", "VYOS_BUILD_IMAGE=${_VYOS_BUILD_IMAGE}", "SSH_PASSWORD_AUTH=${_SSH_PASSWORD_AUTH}"]
+          "BUILD_ID=$BUILD_ID", "VYOS_BUILD_IMAGE=${_VYOS_BUILD_IMAGE}", "SSH_PASSWORD_AUTH=${_SSH_PASSWORD_AUTH}",
+          "GOOGLE_GUEST_AGENT=${_GOOGLE_GUEST_AGENT}"]
 
 timeout: 7200s
 options:

@@ -27,6 +27,7 @@ locals {
     vyos_release                = var.vyos_release
     rebuild_trigger             = var.rebuild_trigger
     ssh_password_authentication = var.ssh_password_authentication
+    google_guest_agent          = var.google_guest_agent
     disk_size_gb                = var.disk_size_gb
     vyos_build_ref              = var.vyos_build_ref
     vyos_build_image            = var.vyos_build_image
@@ -46,6 +47,7 @@ locals {
     RELEASE                = var.vyos_release
     DISK_SIZE              = tostring(var.disk_size_gb)
     SSH_PASSWORD_AUTH      = tostring(var.ssh_password_authentication)
+    GOOGLE_GUEST_AGENT     = tostring(var.google_guest_agent)
     VYOS_BUILD_REF         = var.vyos_build_ref
     VYOS_BUILD_IMAGE       = var.vyos_build_image
     MACHINE_TYPE           = var.build_machine_type

@@ -3,7 +3,7 @@
 ## purpose: ensure the VyOS image for BUILD_TOKEN exists - build it on Cloud Build if needed,
 ##          register it in Compute Engine, prune old images, and block until done
 ## inputs:  PROJECT_ID REGION BUCKET PREFIX SOURCE_OBJECT BUILD_TOKEN BUILDER_SA
-##          RELEASE DISK_SIZE SSH_PASSWORD_AUTH VYOS_BUILD_REF VYOS_BUILD_IMAGE
+##          RELEASE DISK_SIZE SSH_PASSWORD_AUTH GOOGLE_GUEST_AGENT VYOS_BUILD_REF VYOS_BUILD_IMAGE
 ##          MACHINE_TYPE BUILD_TIMEOUT (e.g. 3600s) WAIT_TIMEOUT (seconds, 0=unbounded) POLL_INTERVAL
 ##          IMAGE_NAME IMAGE_FAMILY IMAGE_STORAGE_LOCATION IMAGE_LABELS (k=v,...) IMAGE_RETENTION (0=keep all)
 ## outputs: gs://${BUCKET}/${PREFIX}builds/${BUILD_TOKEN}/{manifest.json,image.tar.gz}, image ${IMAGE_NAME};
@@ -49,7 +49,7 @@ function runBuild {
 	python3 -m zipfile -e "${SRC_DIR}/source.zip" "${SRC_DIR}/src"
 
 	local SUBS="_BUCKET=${BUCKET},_PREFIX=${PREFIX},_BUILD_TOKEN=${BUILD_TOKEN},_RELEASE=${RELEASE}"
-	SUBS+=",_DISK_SIZE=${DISK_SIZE},_SSH_PASSWORD_AUTH=${SSH_PASSWORD_AUTH}"
+	SUBS+=",_DISK_SIZE=${DISK_SIZE},_SSH_PASSWORD_AUTH=${SSH_PASSWORD_AUTH},_GOOGLE_GUEST_AGENT=${GOOGLE_GUEST_AGENT}"
 	SUBS+=",_VYOS_BUILD_REF=${VYOS_BUILD_REF},_VYOS_BUILD_IMAGE=${VYOS_BUILD_IMAGE}"
 	# retry while newly granted IAM propagates
 	for ATTEMPT in $(seq 1 10); do

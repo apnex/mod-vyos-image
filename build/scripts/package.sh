@@ -1,7 +1,7 @@
 #!/bin/bash
 ## module:  build/package
 ## purpose: package the raw disk in GCE import format and publish it with a manifest
-## inputs:  WORKDIR BUCKET PREFIX BUILD_TOKEN BUILD_ID VYOS_BUILD_IMAGE SSH_PASSWORD_AUTH
+## inputs:  WORKDIR BUCKET PREFIX BUILD_TOKEN BUILD_ID VYOS_BUILD_IMAGE SSH_PASSWORD_AUTH GOOGLE_GUEST_AGENT
 ## outputs: gs://${BUCKET}/${PREFIX}builds/<token>/{image.tar.gz,manifest.json}
 set -euo pipefail
 
@@ -33,6 +33,7 @@ python3 - "${W}/out/manifest.json" <<-EOF
 	  "vyos_build": {"commit": open("${W}/vyos-build.sha").read().strip(), "image": "${VYOS_BUILD_IMAGE}"},
 	  "packages": pkgs,
 	  "ssh_password_authentication": "${SSH_PASSWORD_AUTH:-false}" == "true",
+	  "google_guest_agent": "${GOOGLE_GUEST_AGENT:-true}" == "true",
 	  "disk": {"bytes": ${DISK_BYTES}, "gb": ${DISK_BYTES} // 1073741824},
 	  "tarball": {"name": "${TARBALL}", "uri": "${DEST}/${TARBALL}", "sha256": "${TAR_SHA256}"},
 	  "build_token": "${BUILD_TOKEN}",

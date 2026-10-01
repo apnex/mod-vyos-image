@@ -76,6 +76,12 @@ variable "runner_service_account" {
   default     = null
 }
 
+variable "manage_cloudbuild_service_agent" {
+  description = "Grant roles/cloudbuild.serviceAgent to the project's Cloud Build service agent. Google grants it automatically; enable this only where an organisation strips default grants. Destroying the module then removes the binding."
+  type        = bool
+  default     = false
+}
+
 ## release and build
 
 variable "vyos_release" {

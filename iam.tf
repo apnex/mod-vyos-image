@@ -21,15 +21,25 @@ locals {
   runner_email  = var.runner_service_account != null ? var.runner_service_account : google_service_account.runner[0].email
 }
 
+# Google grants the Cloud Build service agent this role automatically; managing it here is
+# opt-in for organisations that strip default grants, because destroy removes the binding
 data "google_project" "this" {
+  count      = var.manage_cloudbuild_service_agent ? 1 : 0
   project_id = var.project_id
 }
 
 resource "google_project_iam_member" "cloudbuild_service_agent" {
+  count      = var.manage_cloudbuild_service_agent ? 1 : 0
   project    = var.project_id
   role       = "roles/cloudbuild.serviceAgent"
-  member     = "serviceAccount:service-${data.google_project.this.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  member     = "serviceAccount:service-${data.google_project.this[0].number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   depends_on = [google_project_service.this]
+}
+
+# keeps an existing binding in place when the input is set to true
+moved {
+  from = google_project_iam_member.cloudbuild_service_agent
+  to   = google_project_iam_member.cloudbuild_service_agent[0]
 }
 
 resource "google_project_iam_member" "builder_log_writer" {

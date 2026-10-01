@@ -43,6 +43,7 @@ create_bucket			= true			# false to use an existing bucket_name
 image_family			= "vyos-rolling"
 image_retention			= 3			# images kept in the family for rollback
 name_prefix			= "vyos-image"		# service accounts and job; change for a second instance in one project
+manage_cloudbuild_service_agent	= false			# true only where an org strips the Cloud Build service agent's default role
 ```
 
 ### notes
@@ -51,3 +52,5 @@ name_prefix			= "vyos-image"		# service accounts and job; change for a second in
 - The Google guest agent handles forwarded IPs, so internal load balancer addresses work on the router; users and SSH keys, interfaces, hostname, SSH host keys, alias IP ranges and time stay with VyOS (see `/etc/default/instance_configs.cfg` in the image)
 - Boot routers from it with [`mod-gce-vyos`](https://github.com/apnex/mod-gce-vyos)
 - Images are registered by the build, not by Terraform, so they survive `terraform destroy`; list them with `gcloud compute images list --filter="labels.managed-by=mod-vyos-image"`
+- The bucket is not force-destroyed by default; set `bucket_force_destroy = true` before `terraform destroy`, rather than emptying the bucket by hand (the destroy reads the build manifest)
+- With `manage_cloudbuild_service_agent = true`, `terraform destroy` removes `roles/cloudbuild.serviceAgent` from the Cloud Build service agent

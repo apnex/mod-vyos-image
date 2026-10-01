@@ -145,12 +145,15 @@ resource "google_cloud_run_v2_job" "build" {
 
   depends_on = [
     google_project_service.this,
+    google_project_iam_member.cloudbuild_service_agent,
     google_project_iam_member.builder_log_writer,
+    google_project_iam_member.builder_service_usage_consumer,
     google_storage_bucket_iam_member.builder_objects,
     google_project_iam_member.runner_builds_editor,
     google_storage_bucket_iam_member.runner_objects,
     google_storage_bucket_iam_member.runner_bucket_reader,
     google_service_account_iam_member.runner_acts_as_builder,
     google_project_iam_member.runner_compute_storage_admin,
+    google_project_iam_member.runner_service_usage_consumer,
   ]
 }

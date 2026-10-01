@@ -125,6 +125,10 @@ if [[ "${GOOGLE_GUEST_AGENT:-true}" == "true" ]]; then
 		vlan_setup_enabled = false
 		restore_debian12_netplan_config = false
 	EOF
+
+	## Mask Debian's un-templated ssh.service: VyOS manages SSH via its own templated ssh@default.service.
+	## If google-guest-agent reloads ssh.service, it collides on port 22 and systemd deletes /run/sshd.
+	ln -sf /dev/null "${ROOT}/etc/systemd/system/ssh.service"
 else
 	echo "[ REMASTER ] google-guest-agent not requested" >&2
 fi

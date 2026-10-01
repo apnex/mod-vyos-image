@@ -21,9 +21,26 @@ locals {
   runner_email  = var.runner_service_account != null ? var.runner_service_account : google_service_account.runner[0].email
 }
 
+data "google_project" "this" {
+  project_id = var.project_id
+}
+
+resource "google_project_iam_member" "cloudbuild_service_agent" {
+  project    = var.project_id
+  role       = "roles/cloudbuild.serviceAgent"
+  member     = "serviceAccount:service-${data.google_project.this.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  depends_on = [google_project_service.this]
+}
+
 resource "google_project_iam_member" "builder_log_writer" {
   project = var.project_id
   role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${local.builder_email}"
+}
+
+resource "google_project_iam_member" "builder_service_usage_consumer" {
+  project = var.project_id
+  role    = "roles/serviceusage.serviceUsageConsumer"
   member  = "serviceAccount:${local.builder_email}"
 }
 
@@ -56,6 +73,13 @@ resource "google_storage_bucket_iam_member" "runner_bucket_reader" {
 resource "google_project_iam_member" "runner_compute_storage_admin" {
   project = var.project_id
   role    = "roles/compute.storageAdmin"
+  member  = "serviceAccount:${local.runner_email}"
+}
+
+# gcloud builds submit checks serviceusage.services.use on the project
+resource "google_project_iam_member" "runner_service_usage_consumer" {
+  project = var.project_id
+  role    = "roles/serviceusage.serviceUsageConsumer"
   member  = "serviceAccount:${local.runner_email}"
 }
 
